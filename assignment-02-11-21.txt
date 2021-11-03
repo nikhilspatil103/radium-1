@@ -1,0 +1,101 @@
+
+admin@DESKTOP-15N539K MINGW64 ~
+$ cd Desktop/
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop
+$ cd todayassign/
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign
+$ mkdir assignment
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign
+$ ls
+assignment/
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign
+$ cd assignment/
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment
+$ mkdir source
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment
+$ mkdir destination
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment
+$ ls
+destination/  source/
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment
+$ cd source/
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/source
+$ cat > file.txt
+hello this is summy file
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/source
+$ cat file.txt
+hello this is summy file
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/source
+$ cp file.txt ../destination
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/source
+$ cd ..
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment
+$ cd destination/
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/destination
+$ ls
+file.txt
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/destination
+$ rm file.txt
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/destination
+$ ls
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/destination
+$ cd ..
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment
+$ cd source/
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/source
+$ mv file.txt ../destination
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/source
+$ ls
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/source
+$ cd ..
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment
+$ cd destination/
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/destination
+$ ls
+file.txt
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/destination
+$ cat file.txt
+hello this is summy file
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/destination
+$ vim file.txt
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/destination
+$ cat file.txt
+dummy text dummy funtionup 1 text dummy text dummy text dummy text dummy text dummy text
+dummy text dummy text dummy text dummy text dummy text dummy text dummy text
+dummy text dummy text dummy text funtionup 2 dummy text dummy text dummy text dummy text
+dummy text dummy text dummy text dummy text dummy text dummy text dummy text
+dummy text dummy funtionup 3 text dummy text dummy text dummy text dummy text dummy text
+dummy text dummy text dummy text dummy text dummy text dummy text dummy texthello this is summy file
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/destination
+$ grep -i 'funtionup' file.txt
+dummy text dummy funtionup 1 text dummy text dummy text dummy text dummy text dummy text
+dummy text dummy text dummy text funtionup 2 dummy text dummy text dummy text dummy text
+dummy text dummy funtionup 3 text dummy text dummy text dummy text dummy text dummy text
+
+admin@DESKTOP-15N539K MINGW64 ~/Desktop/todayassign/assignment/destination
+$ ^C
+

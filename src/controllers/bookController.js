@@ -34,7 +34,7 @@ const authorTwoStates = async function (req,res){
     let idList = await  AuthorModel.find({author_id :  idStates}).select({author_name:1})
     
     let st=twoStates[0].name
-    let prizeUpdate= await BookModel.updateMany({name : st }, {price: 100}).select({prize :1})
+    let prizeUpdate= await BookModel.findOneAndUpdate({name : st}, {price:100}, {new:true}).select({price:1})
     res.send({msg : idList, prizeUpdate})
 }
 //!--------------------------------------4th Q--------------------------------------------------------------------------//

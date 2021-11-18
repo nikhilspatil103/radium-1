@@ -3,6 +3,7 @@ const router = express.Router();
 
 const authorController= require("../controllers/authorController")
 const BookController= require("../controllers/bookController")
+const PublisherController=require("../controllers/publisherController")
 
 
 router.get('/test-me', function (req, res) {
@@ -10,13 +11,15 @@ router.get('/test-me', function (req, res) {
 });
 
 // Authors API
-router.post('/authors',  authorController.createAuthor  );
-router.get('/authors',  authorController.getAuthors  );
+router.post('/createAuthor',  authorController.createAuthor  );
+
+// Publisher API
+router.post('/publisher',PublisherController.publisher)
+
 
 // Books API
-router.post('/books',  BookController.createBook  );
-router.get('/books',  BookController.getBooks  );
-router.get('/book',  BookController.getBook  );
+router.post('/createBook',  BookController.createBook  );
+router.get('/getBooks',  BookController.getBooks  );
 
 
-module.exports = router;
+module.exports = router; 

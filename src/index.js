@@ -10,7 +10,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const midGlb = function (req, res, next) {
 
-    console.log(new Date().toLocaleDateString("en-US"))
+    console.log(new Date().toLocaleString())
     console.log(req.ip)
     console.log(req.originalUrl)
     next()

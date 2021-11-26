@@ -50,11 +50,14 @@ const getCoin = async function (req, res) {
         let list=response.data.data
         for(i in list){
             if(list[i].id===id){
-                res.send({status:true, data: list[i]})
+                result=list[i]
+            }
+        }
+            if(result){
+                res.send({status:true, data: result})
             }else{
                 res.send({status:false, message: "nos such id"})  
             }
-        }
     } catch (err) {
         res.status(500).send({ status: true, msg: err.message })
     }

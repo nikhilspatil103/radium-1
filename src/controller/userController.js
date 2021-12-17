@@ -38,7 +38,7 @@ const registerUser = async function (req, res) {
         if (!isValid(title)) {
             return res.status(400).send({ status: false, message: "Invalid request parameter, please provide Title" })
         }
-        title = title.split(" ").join("")
+        //title = title.split(" ").join("")
         if (!isValidTitle(title.trim())) {
             return res.status(400).send({ status: false, message: " please provide valid Title" })
         }
@@ -46,7 +46,7 @@ const registerUser = async function (req, res) {
         if (!isValid(name)) {
             return res.status(400).send({ status: false, message: "Invalid request parameter, please provide Name" })
         }
-        phone = phone.split(" ").join("")
+        //phone = phone.split(" ").join("")
         if (!isValid(phone)) {
             return res.status(400).send({ status: false, message: "Invalid request parameter, please provide Phone" })
         }
@@ -81,7 +81,7 @@ const registerUser = async function (req, res) {
         if (!isValid(password)) {
             return res.status(400).send({ status: false, message: "Invalid request parameter, please provide password" })
         }
-
+        password=password.trim()
         if (!(password.length >= 8 && password.length <= 15)) {        //!---Ask Mentor about spcae
             return res.status(400).send({ status: false, message: "Password should be Valid min 8 and max 15 " })
         }

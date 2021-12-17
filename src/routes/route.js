@@ -24,8 +24,14 @@ router.get('/books',BookController.getBooks)
 router.get('/books/:bookId', BookController.getBooksByID)
 // put update API 
 router.put('/books/:bookId' ,BookController.updateBooks )
+// Delete Book API
+router.delete('/books/:bookId',BookController.deleteByBookId)
 
 //Review API
 //Create Review API
 router.post('/books/:bookId/review',ReviewController.createReview)
+//update review API
+router.put('/books/:bookId/review/:reviewId', ReviewController.updateReview)
+//Delete Review API
+router.delete('/books/:bookId/review/:reviewId',ReviewController.deleteReview )
 module.exports = router;

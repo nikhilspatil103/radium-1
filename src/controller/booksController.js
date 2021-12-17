@@ -19,14 +19,14 @@ const isValidRequestBody = function (requestBody) {
     return Object.keys(requestBody).length > 0
 }
 
-const isValidBody = function (requestBody) {
-    return Object.keys(requestBody).length == 0
-}
-
 const isValidObjectId = function (objectId) {
     return mongoose.Types.ObjectId.isValid(objectId)
 }
 
+const validString = function (value) {
+    if (typeof value === 'string' && value.trim().length === 0) return false
+    return true;
+}
 //------------------------------------------------------------------------//
 
 const createBook = async function (req, res) {
@@ -90,15 +90,6 @@ const createBook = async function (req, res) {
         const updatedBody = { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt }
         let bookData = await booksModel.create(updatedBody)
         return res.status(201).send({ status: true, message: 'Success', data: bookData })
-        // const filterQuery = {isDeleted: false, deletedAt: null, isPublished: true}
-        //         const queryParams = req.query
-        // if(isValidRequestBody(queryParams)) {
-        //     const {authorId, category, tags, subcategory} = queryParams
-
-        //     if(isValid(authorId) && isValidObjectId(authorId)) {
-        //         filterQuery['authorId'] = authorId
-        //     }
-
 
     } catch (err) {
         res.status(500).send({ status: false, msg: err.message })
@@ -160,7 +151,7 @@ const getBooksByID = async function (req, res) {
     }
     let iBook = book.toObject()                    //!-Ask mentor--------------------------review
     if (reviewsData) {
-        iBook['reviewsData'] = reviewsData         
+        iBook['reviewsData'] = reviewsData
     }
     //book['reviewsData'] =reviewsData
     res.status(200).send({ status: true, data: iBook })
@@ -203,27 +194,27 @@ const updateBooks = async function (req, res) {
 
         // Extract params
         const { title, excerpt, releasedAt, ISBN } = requestBody;
-        if (isValidRequestBody(title)) {
-            if (!isValid(title)) {
-                return res.status(400).send({ status: false, message: 'Title Required' })
-            }
+
+        if (!validString(title)) {
+            return res.status(400).send({ status: false, message: 'Title Required' })
         }
 
-        if (!isValidRequestBody(excerpt)) {
-            if (!isValid(excerpt)) {
-                return res.status(400).send({ status: false, message: 'excerpt Required' })
-            }
+
+
+        if (!validString(excerpt)) {
+            return res.status(400).send({ status: false, message: 'excerpt Required' })
         }
-        if (!isValidBody(ISBN)) {
-            if (!isValid(ISBN)) {
-                return res.status(400).send({ status: false, message: 'ISBN Required' })
-            }
+
+
+        if (!validString(ISBN)) {
+            return res.status(400).send({ status: false, message: 'ISBN Required' })
         }
-        if (isValidBody(releasedAt)) {
-            if (!isValid(releasedAt)) {
-                return res.status(400).send({ status: false, message: 'releasedAt Date Required' })
-            }
+
+
+        if (!validString(releasedAt)) {
+            return res.status(400).send({ status: false, message: 'releasedAt Date Required' })
         }
+
         let isTitleAlreadyPresent = await booksModel.findOne({ title })
         if (isTitleAlreadyPresent) {
             return res.status(400).send({ status: false, message: 'Title alredy present' })
@@ -262,6 +253,24 @@ const updateBooks = async function (req, res) {
     }
 }
 
+const deleteByBookId = async function (req, res) {
+    let bookId = req.params.bookId
+    if(!isValidObjectId(bookId)) {
+        res.status(400).send({status: false, message: `${bookId} is not a valid blog id`})
+        return
+    }
+
+    let book = await booksModel.findOne({_id:bookId , isDeleted: false})
+    if(!book){
+        return res.status(400).send({status: false, message: `${bookId}  not found or alredy deleted`})
+    }
+    
+    let udatedData= await booksModel.findOneAndUpdate({_id: bookId}, {$set: {isDeleted: true, deletedAt: new Date()}}, {new : true } )
+    
+    res.status(201).send({status: true, message: `Blog deleted successfully`, data : udatedData})
+
+}
+
 module.exports = {
-    createBook, getBooks, getBooksByID, updateBooks
+    createBook, getBooks, getBooksByID, updateBooks,deleteByBookId
 }

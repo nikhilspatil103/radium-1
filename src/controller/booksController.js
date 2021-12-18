@@ -32,12 +32,28 @@ const validString = function (value) {
 const createBook = async function (req, res) {
     try {
         const requestBody = req.body
+        const userIdFromToken = req.userId
 
         if (!isValidRequestBody(requestBody)) {
             return res.status(400).send({ status: false, message: "Invalid request parameter, please provide Book Detaills" })
         }
 
+        if (!isValidObjectId(ObjectId(userIdFromToken))) {
+            return res.status(400).send({ status: false, message: `${userIdFromToken} is not a valid Book id or not present ` })
+        }
+
         let { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt } = requestBody
+
+        const user = await userModel.findById(userId)
+
+        if (!user) {
+            return res.status(400).send({ status: false, message: `User does not exit` })
+        }
+    
+        if(user._id.toString() !== userIdFromToken) {           
+            res.status(401).send({status: false, message: `Unauthorized access! Owner info doesn't match`});
+            return
+        }
 
         if (!isValid(title)) {
             return res.status(400).send({ status: false, message: "Invalid request parameter, please provide Title" })
@@ -57,11 +73,8 @@ const createBook = async function (req, res) {
             return res.status(400).send({ status: false, message: "Invalid request parameter, please provide userId" })
         }
 
-        const user = await userModel.findById(userId)
+        
 
-        if (!user) {
-            return res.status(400).send({ status: false, message: `User does not exit` })
-        }
         if (!isValidObjectId(userId)) {             //!-------Ask Mentor------------//
             return res.status(400).send({ status: false, message: "userId provided is not valid" })
         }
@@ -153,6 +166,7 @@ const getBooksByID = async function (req, res) {
     if (reviewsData) {
         iBook['reviewsData'] = reviewsData
     }
+    
     //book['reviewsData'] =reviewsData
     res.status(200).send({ status: true, data: iBook })
 
@@ -172,20 +186,19 @@ const updateBooks = async function (req, res) {
             return
         }
 
-        // if(!isValidObjectId(authorIdFromToken)) {
-        //     res.status(400).send({status: false, message: `${authorIdFromToken} is not a valid token id`})
-        //     return
-        // }
+        if (!isValidObjectId(ObjectId(userIdFromToken))) {
+            return res.status(400).send({ status: false, message: `${userIdFromToken} is not a valid Book id or not present ` })
+        }
 
         const book = await booksModel.findOne({ _id: bookId, isDeleted: false })
         if (!book) {
             return res.status(404).send({ status: false, message: `Book not found` })
         }
 
-        // if(blog.userId.toString() !== userIdFromToken) {
-        //     res.status(401).send({status: false, message: `Unauthorized access! Owner info doesn't match`});
-        //     return
-        // }
+        if(book.userId.toString() !== userIdFromToken) {
+            res.status(401).send({status: false, message: `Unauthorized access! Owner info doesn't match`});
+            return
+        }
 
         if (!isValidRequestBody(requestBody)) {
             res.status(200).send({ status: true, message: 'No paramateres passed. book unmodified' })
@@ -226,12 +239,12 @@ const updateBooks = async function (req, res) {
             return res.status(400).send({ status: false, message: 'ISBN alredy present' })
         }
 
-        if (releasedAt) {
-            if (!/^(([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8]))))|((([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00))-02-29)$/.test(releasedAt)) {
+        // if (releasedAt) {
+        //     if (!.test(releasedAt)) {
 
-                return res.status(400).send({ status: false, message: "Invalid request parameter, please provide valid release date" })
-            }
-        }
+        //         return res.status(400).send({ status: false, message: "Invalid request parameter, please provide valid release date" })
+        //     }
+        // }
         ///---------------------------------------Validation Ends --------------------------------//
 
         const updatedBlogData = await booksModel.findOneAndUpdate({ _id: bookId, isDeleted: false },
@@ -255,22 +268,33 @@ const updateBooks = async function (req, res) {
 
 const deleteByBookId = async function (req, res) {
     let bookId = req.params.bookId
-    if(!isValidObjectId(bookId)) {
-        res.status(400).send({status: false, message: `${bookId} is not a valid blog id`})
+    const userIdFromToken = req.userId
+
+    if (!isValidObjectId(bookId)) {
+        res.status(400).send({ status: false, message: `${bookId} is not a valid blog id` })
         return
     }
 
-    let book = await booksModel.findOne({_id:bookId , isDeleted: false})
-    if(!book){
-        return res.status(400).send({status: false, message: `${bookId}  not found or alredy deleted`})
+    if (!isValidObjectId(ObjectId(userIdFromToken))) {
+        return res.status(400).send({ status: false, message: `${userIdFromToken} is not a valid Book id or not present ` })
     }
-    
-    let udatedData= await booksModel.findOneAndUpdate({_id: bookId}, {$set: {isDeleted: true, deletedAt: new Date()}}, {new : true } )
-    
-    res.status(201).send({status: true, message: `Blog deleted successfully`, data : udatedData})
+
+    let book = await booksModel.findOne({ _id: bookId, isDeleted: false })
+    if (!book) {
+        return res.status(400).send({ status: false, message: `${bookId}  not found or alredy deleted` })
+    }
+
+    if(book.userId.toString() !== userIdFromToken) {
+        res.status(401).send({status: false, message: `Unauthorized access! Owner info doesn't match`});
+        return
+    }
+
+    let udatedData = await booksModel.findOneAndUpdate({ _id: bookId }, { $set: { isDeleted: true, deletedAt: new Date(), reviews: 0 } }, { new: true })
+    await reviewModel.updateMany({ bookId: bookId }, { isDeleted: true, })
+    res.status(201).send({ status: true, message: `Blog deleted successfully`, data: udatedData })
 
 }
 
 module.exports = {
-    createBook, getBooks, getBooksByID, updateBooks,deleteByBookId
+    createBook, getBooks, getBooksByID, updateBooks, deleteByBookId
 }

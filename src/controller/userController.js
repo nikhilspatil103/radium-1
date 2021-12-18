@@ -134,9 +134,9 @@ const loginUser = async function (req, res) {
         }
 
         const token = await jwt.sign({
-            authorId: user._id,
+            userId: user._id,
             iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + 60 * 30
+            exp: Math.floor(Date.now() / 1000) + 60 * 5 
         }, 'project4')
 
         res.header("x-api-key", token);

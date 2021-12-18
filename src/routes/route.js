@@ -5,7 +5,7 @@ const router = express.Router();
 const UserController = require('../controller/userController')
 const BookController=require('../controller/booksController')
 const ReviewController=require('../controller/reviewController')
-const UserAuth = require('../Middleware/userAuth')
+const loginCheck=require('../Middleware/userAuth')
 
 router.get('/test-me', function (req, res) {
     res.send('My first ever api!')
@@ -17,15 +17,15 @@ router.post("/register", UserController.registerUser)
 //LoginUser API
 router.post('/login', UserController.loginUser)
 // create Book API
-router.post('/books',BookController.createBook)
+router.post('/books',loginCheck.userAuth,BookController.createBook)   //!----
 // get Books  API
-router.get('/books',BookController.getBooks)
+router.get('/books',loginCheck.userAuth,BookController.getBooks)
 // get BooksByID API
-router.get('/books/:bookId', BookController.getBooksByID)
+router.get('/books/:bookId',loginCheck.userAuth, BookController.getBooksByID)
 // put update API 
-router.put('/books/:bookId' ,BookController.updateBooks )
+router.put('/books/:bookId' ,loginCheck.userAuth,BookController.updateBooks ) //!-----
 // Delete Book API
-router.delete('/books/:bookId',BookController.deleteByBookId)
+router.delete('/books/:bookId' ,loginCheck.userAuth,BookController.deleteByBookId) //!-------
 
 //Review API
 //Create Review API

@@ -68,7 +68,7 @@ const registerUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "Invalid request parameter, please provide email" })
         }
         email = email.trim()
-        if (!/^\w+([\.-]?\w+)@\w    +([\.-]?\w+)(\.\w{2,3})+$/.test(email)) {
+        if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email)) {
             return res.status(400).send({ status: false, message: `Email should be a valid email address` });
         }
 

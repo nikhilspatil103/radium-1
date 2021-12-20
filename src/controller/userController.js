@@ -46,7 +46,7 @@ const registerUser = async function (req, res) {
         if (!isValid(name)) {
             return res.status(400).send({ status: false, message: "Invalid request parameter, please provide Name" })
         }
-        //phone = phone.split(" ").join("")
+        phone = phone.trim()
         if (!isValid(phone)) {
             return res.status(400).send({ status: false, message: "Invalid request parameter, please provide Phone" })
         }
@@ -63,12 +63,12 @@ const registerUser = async function (req, res) {
         if (isPhoneAlredyPresent) {
             return res.status(400).send({ status: false, message: `Phone Number Already Present` });
         }
-        email = email.trim().split(" ").join("")
+        
         if (!isValid(email)) {
             return res.status(400).send({ status: false, message: "Invalid request parameter, please provide email" })
         }
-
-        if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email)) {
+        email = email.trim()
+        if (!/^\w+([\.-]?\w+)@\w    +([\.-]?\w+)(\.\w{2,3})+$/.test(email)) {
             return res.status(400).send({ status: false, message: `Email should be a valid email address` });
         }
 
@@ -104,16 +104,16 @@ const loginUser = async function (req, res) {
     try {
         let requestBody = req.body;
         if (!isValidRequestBody(requestBody)) {
-            return res.status(400).send({ status: false, msg: "enter a valid request body" });
+            return res.status(400).send({ status: false, msg: "Please enter login credentials" });
         }
 
-        const { email, password } = requestBody;
-
+        let { email, password } = requestBody;
+        // assignment to consant variable if we give const
         if (!isValid(email)) {
             res.status(400).send({ status: false, msg: "enter an email" });
             return;
         }
-
+        email = email.trim()
         if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email)) {
             return res.status(400).send({ status: false, message: `Email should be a valid email address` });
         }
@@ -122,7 +122,7 @@ const loginUser = async function (req, res) {
             res.status(400).send({ status: false, msg: "enter a password" });
             return;
         }
-        
+        password = password.trim()
         if (!(password.length >= 8 && password.length <= 15)) {        //!---Ask Mentor about spcae
             return res.status(400).send({ status: false, message: "Password should be Valid min 8 and max 15 " })
         }
@@ -132,12 +132,13 @@ const loginUser = async function (req, res) {
             res.status(401).send({ status: false, msg: " Either email or password incorrect" });
             return;
         }
-
-        const token = await jwt.sign({
+       
+        const token =  jwt.sign({
             userId: user._id,
             iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + 60 * 5 
+            exp: Math.floor(Date.now() / 1000) + 60 * 30
         }, 'project4')
+
 
         res.header("x-api-key", token);
         //console.log(moment().format("YYYY-MM-DD"))

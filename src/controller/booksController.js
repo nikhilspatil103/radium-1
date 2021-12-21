@@ -4,6 +4,7 @@ const ObjectId = mongoose.Types.ObjectId
 const userModel = require('../models/userModel')
 const booksModel = require('../models/booksModel')
 const reviewModel = require('../models/reviewModel')
+const aswFile = require('../ASW/aws')
 
 
 //-------------------------------Functions---------------------------------/
@@ -29,6 +30,27 @@ const validString = function (value) {
 }
 //------------------------------------------------------------------------//
 
+const createCover = async function (req, res) {
+    try {
+        let files = req.files;
+        if (files && files.length > 0) {
+            //upload to s3 and return true..incase of error in uploading this will goto catch block( as rejected promise)
+            var uploadedFileURL = await aswFile.uploadFile(files[0]); // expect this function to take file as input and give url of uploaded file as output 
+            res.status(201).send({ status: true, data: uploadedFileURL });
+
+        }
+        else {
+            res.status(400).send({ status: false, msg: "No file to write" });
+        }
+
+    }
+    catch (e) {
+        console.log("error is: ", e);
+        res.status(500).send({ status: false, msg: "Error in uploading file to s3" });
+    }
+
+}
+
 const createBook = async function (req, res) {
     try {
         const requestBody = req.body
@@ -42,12 +64,12 @@ const createBook = async function (req, res) {
             return res.status(400).send({ status: false, message: `${userIdFromToken} is not a valid Book id or not present ` })
         }
 
-        let { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt } = requestBody
+        let { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt,coverURL } = requestBody
 
         if (!isValid(userId)) {
             return res.status(400).send({ status: false, message: "Invalid request parameter, please provide userId" })
         }
-        userId=userId.trim()
+        userId = userId.trim()
         if (!isValidObjectId(userId)) {             //!-------Ask Mentor------------//
             return res.status(400).send({ status: false, message: "userId provided is not valid" })
         }
@@ -56,9 +78,9 @@ const createBook = async function (req, res) {
         if (!user) {
             return res.status(400).send({ status: false, message: `User does not exit` })
         }
-    
-        if(user._id.toString() !== userIdFromToken) {           
-            res.status(401).send({status: false, message: `Unauthorized access! Owner info doesn't match`});
+
+        if (user._id.toString() !== userIdFromToken) {
+            res.status(401).send({ status: false, message: `Unauthorized access! Owner info doesn't match` });
             return
         }
 
@@ -96,9 +118,13 @@ const createBook = async function (req, res) {
 
             return res.status(400).send({ status: false, message: "Invalid request parameter, please provide valid release date" })
         }
+        if (!isValid(coverURL)) {
+            return res.status(400).send({ status: false, message: "Invalid request parameter, please provide date" })
+        }
+
         //------------------------------------Validation Ends-------------------------------------------------------------//
 
-        const updatedBody = { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt }
+        const updatedBody = { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt,coverURL }
         let bookData = await booksModel.create(updatedBody)
         return res.status(201).send({ status: true, message: 'Success', data: bookData })
 
@@ -134,8 +160,8 @@ const getBooks = async function (req, res) {  //!----- testing ----
 
         let sortedByTitle = book.sort((a, b) => a.title.toLowerCase() > b.title.toLowerCase() ? 1 : -1)   //!---Ask Mentor---
 
-        if (sortedByTitle.length==0){
-            return res.status(204).send({status:true})
+        if (sortedByTitle.length == 0) {
+            return res.status(204).send({ status: true })
         }
 
         res.status(200).send({ status: true, data: sortedByTitle })
@@ -158,8 +184,8 @@ const getBooksByID = async function (req, res) {
         return res.status(400).send({ status: false, message: `${bookId} is not a valid Book id or not present ` })
 
     }
-    let reviewsData = await reviewModel.find({ bookId }).select({isDeleted:0,createdAt:0,updatedAt:0,__v:0})
-    let book = await booksModel.findOne({ _id: bookId, isDeleted: false }).select({__v:0})
+    let reviewsData = await reviewModel.find({ bookId }).select({ isDeleted: 0, createdAt: 0, updatedAt: 0, __v: 0 })
+    let book = await booksModel.findOne({ _id: bookId, isDeleted: false }).select({ __v: 0 })
     if (!book) {
         return res.status(404).send({ status: false, message: `Book not found Or is been delete` })
     }
@@ -167,7 +193,7 @@ const getBooksByID = async function (req, res) {
     if (reviewsData) {
         iBook['reviewsData'] = reviewsData
     }
-    
+
     //book['reviewsData'] =reviewsData
     res.status(200).send({ status: true, data: iBook })
 
@@ -182,7 +208,7 @@ const updateBooks = async function (req, res) {
         const bookId = params.bookId
         const userIdFromToken = req.userId
 
-       
+
 
         if (!isValidObjectId(bookId)) {
             res.status(400).send({ status: false, message: `${bookId} is not a valid book id` })
@@ -198,8 +224,8 @@ const updateBooks = async function (req, res) {
             return res.status(404).send({ status: false, message: `Book not found` })
         }
 
-        if(book.userId.toString() !== userIdFromToken) {
-            res.status(401).send({status: false, message: `Unauthorized access! Owner info doesn't match`});
+        if (book.userId.toString() !== userIdFromToken) {
+            res.status(401).send({ status: false, message: `Unauthorized access! Owner info doesn't match` });
             return
         }
 
@@ -211,7 +237,7 @@ const updateBooks = async function (req, res) {
         // Extract params
         const { title, excerpt, releasedAt, ISBN } = requestBody;
 
-    
+
         if (!validString(title)) {
             return res.status(400).send({ status: false, message: 'Title Required' })
         }
@@ -288,8 +314,8 @@ const deleteByBookId = async function (req, res) {
         return res.status(400).send({ status: false, message: `${bookId}  not found or alredy deleted` })
     }
 
-    if(book.userId.toString() !== userIdFromToken) {
-        res.status(401).send({status: false, message: `Unauthorized access! Owner info doesn't match`});
+    if (book.userId.toString() !== userIdFromToken) {
+        res.status(401).send({ status: false, message: `Unauthorized access! Owner info doesn't match` });
         return
     }
 
@@ -300,5 +326,5 @@ const deleteByBookId = async function (req, res) {
 }
 
 module.exports = {
-    createBook, getBooks, getBooksByID, updateBooks, deleteByBookId
+    createBook, getBooks, getBooksByID, updateBooks, deleteByBookId,createCover
 }
